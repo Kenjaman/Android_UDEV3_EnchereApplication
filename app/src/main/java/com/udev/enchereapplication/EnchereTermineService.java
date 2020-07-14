@@ -47,7 +47,6 @@ public class EnchereTermineService extends Service {
     private Context ctx;
 
     private RequestQueue requestQueue;
-//    private Timer timerAvantAppel;
 
 
     @Nullable
@@ -99,7 +98,6 @@ public class EnchereTermineService extends Service {
                                 builder.setContentText("Vous avez remporté l'enchere de "+produit+" pour un total de "+response.getInt("prix_actuel")+"€")
                                         .setStyle(new NotificationCompat.BigTextStyle()
                                                 .bigText("Vous avez remporté l'enchere de "+produit+" pour un total de "+response.getInt("prix_actuel")+"€"));
-//                                Toast.makeText(ctx,"Vous avez remporté l'enchere de "+produit+" pour un total de "+response.getInt("prix_actuel")+"€",Toast.LENGTH_LONG).show();
                             }else {
                                 builder.setContentText("L'enchere de " + produit + " a été remportée par " + response.getString("acheteur") + " pour un total de " + response.getInt("prix_actuel") + "€")
                                         .setStyle(new NotificationCompat.BigTextStyle()
@@ -109,7 +107,6 @@ public class EnchereTermineService extends Service {
                                     .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
                             NotificationManagerCompat notifManger = NotificationManagerCompat.from(ctx);
                             notifManger.notify(3,builder.build());
-                            Log.d(TAG,notifManger.getNotificationChannel(CHANNEL_ID)+" devrais s'afficheeeeeeeeeeeeeeeer");
                             executorService.shutdown();
                         } catch (JSONException e) {
                             e.printStackTrace();

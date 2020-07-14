@@ -196,7 +196,6 @@ public class EnchereEnCoursActivity extends AppCompatActivity {
                         enchere.stoptimertask();
                         enchere=null; //On nettoie l'ancienne enchere avant de charger la nouvelle
                         enchere = new Enchere(response);
-                        Log.i("onClickSurEnchere------------------->",enchere.toString());
                         affichageEnchere();
                     }
                 }, new Response.ErrorListener() {
@@ -243,12 +242,6 @@ public class EnchereEnCoursActivity extends AppCompatActivity {
                         Log.d("Timer","Execution de la tache runInUiThread");
                         String ancienAcheteur = enchere.getAcheteur();
                         chargementEnchere(enchere.getUrl_enchere().toString());
-//                        timerCompteur.cancel();
-//                        if(enchere.getTemps_restant()<=0) {
-//                            Log.d("Timer","Fin de l'enchere chargement d'une nouvelle");
-//                            chargementEnchere(ADRESSE_SERVEUR);
-//                            stoptimertask();
-//                        }
                         if(!enchere.getAcheteur().equals(ancienAcheteur)) {
                             Log.d("Timer","changement d'acheteur");
                             affichageEnchere();
