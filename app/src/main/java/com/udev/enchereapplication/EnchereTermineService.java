@@ -1,15 +1,22 @@
 package com.udev.enchereapplication;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -29,6 +36,7 @@ public class EnchereTermineService extends Service {
 
     private static final Object REQUEST_TAG = new Object();
     private static final String TAG = "ServiceFinEnchere";
+    private static final String CHANNEL_ID = "EnchereApp_channel";
 
     private ExecutorService executorService;
 
@@ -51,6 +59,7 @@ public class EnchereTermineService extends Service {
     @Override
     public void onCreate() {
         Log.i(TAG,"Lancement du service");
+
         this.requestQueue = Volley.newRequestQueue(this.getApplicationContext());
         this.executorService = Executors.newFixedThreadPool(1);
 
@@ -63,7 +72,7 @@ public class EnchereTermineService extends Service {
         temps_restant_service = intent.getIntExtra("tempsRestant",0);
         url_enchere_service = intent.getStringExtra("url_enchere");
         produit = intent.getStringExtra("produit");
-        ctx = this.getApplicationContext();
+        ctx = this;
         this.executorService.execute(new EnchereTermineAppel(url_enchere_service,temps_restant_service, startId));
 //        this.chargementInfos(url_enchere_service);
         return START_STICKY;
@@ -77,17 +86,30 @@ public class EnchereTermineService extends Service {
     }
 
     private void chargementInfos(String url){
-        final JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
+        JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
+                            createNotificationChannel();
+                            NotificationCompat.Builder builder = new NotificationCompat.Builder(ctx, CHANNEL_ID)
+                                    .setSmallIcon(R.mipmap.ic_launcher)
+                                    .setContentTitle("Enchère terminée");
                             if(response.getString("acheteur").equals(pseudo)){
-
-                                Toast.makeText(ctx,"Vous avez remporté l'enchere de "+produit+" pour un total de "+response.getInt("prix_actuel")+"€",Toast.LENGTH_LONG).show();
-                            }else
-                                Toast.makeText(ctx,"L'enchere de "+produit+" a été remportée par "+response.getString("acheteur")+" pour un total de "+response.getInt("prix_actuel")+"€",Toast.LENGTH_LONG).show();
-
+                                builder.setContentText("Vous avez remporté l'enchere de "+produit+" pour un total de "+response.getInt("prix_actuel")+"€")
+                                        .setStyle(new NotificationCompat.BigTextStyle()
+                                                .bigText("Vous avez remporté l'enchere de "+produit+" pour un total de "+response.getInt("prix_actuel")+"€"));
+//                                Toast.makeText(ctx,"Vous avez remporté l'enchere de "+produit+" pour un total de "+response.getInt("prix_actuel")+"€",Toast.LENGTH_LONG).show();
+                            }else {
+                                builder.setContentText("L'enchere de " + produit + " a été remportée par " + response.getString("acheteur") + " pour un total de " + response.getInt("prix_actuel") + "€")
+                                        .setStyle(new NotificationCompat.BigTextStyle()
+                                                .bigText("L'enchere de " + produit + " a été remportée par " + response.getString("acheteur") + " pour un total de " + response.getInt("prix_actuel") + "€"));//                                Toast.makeText(ctx, "L'enchere de " + produit + " a été remportée par " + response.getString("acheteur") + " pour un total de " + response.getInt("prix_actuel") + "€", Toast.LENGTH_LONG).show();
+                            }
+                            builder.setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
+                            NotificationManagerCompat notifManger = NotificationManagerCompat.from(ctx);
+                            notifManger.notify(3,builder.build());
+                            Log.d(TAG,notifManger.getNotificationChannel(CHANNEL_ID)+" devrais s'afficheeeeeeeeeeeeeeeer");
                             executorService.shutdown();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -98,14 +120,15 @@ public class EnchereTermineService extends Service {
             public void onErrorResponse(VolleyError error) {
                 if(error.networkResponse!=null){
                     if(error.networkResponse.statusCode == 404) {
-                        return;
+                        Log.e(TAG,"Erreur 404");
                     }
                     else if(error.networkResponse.statusCode == 400) {
-                        return;
+                        Log.e(TAG,"Erreur 400");
                     }
                 }
             }
         });
+
         request.setTag(REQUEST_TAG);
         requestQueue.add(request);
 
@@ -135,6 +158,21 @@ public class EnchereTermineService extends Service {
             } finally {
                 stopSelf(this.startId);
             }
+        }
+    }
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "EnchereApp";
+            String description = "Notification d'EnchereApplication";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
         }
     }
 
