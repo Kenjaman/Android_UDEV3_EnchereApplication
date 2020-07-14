@@ -1,0 +1,20 @@
+<resources>
+    <string name="app_name">EnchereApplication</string>
+    <string name="x2">x2</string>
+    <string name="pseudo_hint">Entrez votre pseudo ici</string>
+    <string name="niveau_d_enchere_en">Niveau d\'enchere (en %)</string>
+    <string name="plafond">Plafond</string>
+    <string name="x3">x3</string>
+    <string name="x4">x4</string>
+    <string name="x5">x5</string>
+    <string name="activer_d_sactiver_le_plafond">Activer/désactiver le plafond</string>
+    <string name="accepter_les_conditions_d_utilisation">Accepter les conditions d\'utilisation</string>
+    <string name="annuler">Annuler</string>
+    <string name="ok">Ok</string>
+    <string name="plafond_activ">Activé</string>
+    <string name="plafond_desactiv">Désactivé</string>
+    <string name="nom_article">Nom_Article</string>
+    <string name="prix_encours">150 €</string>
+    <string name="prix_base">1000 €</string>
+    <string name="meilleur_enchereur">Rick</string>
+</resources>
