@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">EnchereApplication</string>
+    <string name="app_name">Encheres App UDEV3</string>
     <string name="x2">x2</string>
     <string name="pseudo_hint">Entrez votre pseudo ici</string>
     <string name="niveau_d_enchere_en">Niveau d\'enchere (en %)</string>
